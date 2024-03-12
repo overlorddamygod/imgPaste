@@ -8,14 +8,24 @@ import { loginSchema, registerSchema } from "../helpers/validator/auth.js"
 const authRouter = Router()
 
 authRouter.post('/register', async (req, res, next) => {
-    const { email, password, confirmPassword } = req.body;
+    const { username, email, password, confirmPassword } = req.body;
 
     try {
-        await registerSchema.validateAsync({ email, password, confirmPassword })
+        await registerSchema.validateAsync({ username, email, password, confirmPassword })
 
-        const result = await prismaClient.user.findUnique({
+        let result = await prismaClient.user.findUnique({
             where: {
-                email: email
+                email
+            }
+        });
+
+        if (result) {
+            return res.status(400).send({ message: "User already exists" });
+        }
+
+        result = await prismaClient.user.findUnique({
+            where: {
+                username
             }
         });
 
@@ -27,7 +37,8 @@ authRouter.post('/register', async (req, res, next) => {
 
         await prismaClient.user.create({
             data: {
-                email: email,
+                username,
+                email,
                 password: hashedPassword
             }
         });

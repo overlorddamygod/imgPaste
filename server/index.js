@@ -11,7 +11,7 @@ const app = express();
 app.use(cors())
 app.use(express.json());
 app.use(morgan('dev'));
-app.use(express.static('public'));
+app.use("/public", express.static('public'));
 
 app.use("/auth", authRouter);
 app.use("/post", postRouter);

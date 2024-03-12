@@ -3,7 +3,7 @@ import { PrimaryButton, SecondaryButton } from './Button'
 import { useAuth } from '../state';
 
 const Header = () => {
-	const {isLoggedIn, logout} = useAuth();
+	const { isLoggedIn, logout } = useAuth();
 
 	const onLogout = () => {
 		logout()
@@ -14,9 +14,12 @@ const Header = () => {
 			<nav className="spacing flex items-center justify-between">
 				<div className="flex items-center gap-3">
 					<Link to="/">
-						<h1 className="font-extrabold text-4xl inline-block">imgpaste</h1>
+						<h1 className="font-extrabold text-4xl inline-block">imgPaste</h1>
 					</Link>
-					<PrimaryButton>Create Post</PrimaryButton>
+					<Link to="/create-post">
+
+						<PrimaryButton>Create Post</PrimaryButton>
+					</Link>
 				</div>
 				<div className="flex gap-2">
 					{isLoggedIn() ? <PrimaryButton onClick={onLogout}>Logout</PrimaryButton> : <>

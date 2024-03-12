@@ -12,8 +12,8 @@ datasource db {
 
 model User {
   id       Int     @id @default(autoincrement())
+  username     String @unique
   email    String  @unique
-  name     String?
   password String
   posts    Post[]
 }
@@ -36,7 +36,7 @@ model PostItem {
   id      Int    @id @default(autoincrement())
   type    String
   content String
-  post    Post   @relation(fields: [postId], references: [id])
+  post    Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId  Int
 
   createdAt DateTime @default(now())

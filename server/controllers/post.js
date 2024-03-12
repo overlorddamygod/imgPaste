@@ -15,14 +15,19 @@ postRouter.post('/create', isLoggedIn, async (req, res, next) => {
     }
 
     try {
-        prismaClient.post.create({
+        const result = await prismaClient.post.create({
             data: {
                 title: title,
                 authorId: req.user.id
             }
         });
 
-        return res.status(201).send({ message: "Post created successfully." });
+        return res.status(201).send({
+            message: "Post created successfully.", data: {
+                id: result.id,
+                title: result.title,
+            }
+        });
     } catch (error) {
         next(error)
     }
@@ -36,6 +41,10 @@ postRouter.get('/:id', async (req, res, next) => {
         const post = await prismaClient.post.findUnique({
             where: {
                 id: parseInt(id)
+            },
+            include: {
+                postItems: true,
+                author: true
             }
         });
 
@@ -43,7 +52,30 @@ postRouter.get('/:id', async (req, res, next) => {
             return res.status(404).send({ message: "Post not found." });
         }
 
-        return res.status(200).send({ data: post });
+        return res.status(200).send({ data: {post} });
+    } catch (error) {
+        next(error)
+    }
+});
+
+postRouter.get('/postItem/:id', async (req, res, next) => {
+    const { id } = req.params;
+
+    try {
+        const postItem = await prismaClient.postItem.findUnique({
+            where: {
+                id: parseInt(id)
+            },
+            include: {
+                post: true,
+            }
+        });
+
+        if (!postItem) {
+            return res.status(404).send({ message: "Post not found." });
+        }
+
+        return res.status(200).send({ data: {postItem} });
     } catch (error) {
         next(error)
     }
@@ -75,12 +107,12 @@ postRouter.post('/addPostItem', isLoggedIn, async (req, res, next) => {
         }
 
         if (type === "image") {
-            if (!req.files || !req.files.image) {
+            if (!req.files || !req.files.content) {
                 return res.status(400).send({ message: "Image is required." });
             }
 
-            const image = req.files.image;
-            const imagePath = `${__dirname}/../../public/${image.name}`;
+            const image = req.files.content;
+            const imagePath = `./public/${image.name}`;
 
             image.mv(imagePath, (err) => {
                 if (err) {
@@ -91,11 +123,14 @@ postRouter.post('/addPostItem', isLoggedIn, async (req, res, next) => {
             await prismaClient.postItem.create({
                 data: {
                     type,
-                    content: imagePath,
+                    content: imagePath.slice(1),
                     postId: parseInt(id)
                 }
             });
         } else {
+            if (!content) {
+                return res.status(400).send({ message: "Content is required." });
+            }
             await prismaClient.postItem.create({
                 data: {
                     type,
@@ -111,7 +146,7 @@ postRouter.post('/addPostItem', isLoggedIn, async (req, res, next) => {
     }
 });
 
-postRouter.delete('/delete/:id', isLoggedIn, async (req, res, next) => {
+postRouter.delete('/:id', isLoggedIn, async (req, res, next) => {
     const { id } = req.params;
 
     try {
@@ -136,6 +171,39 @@ postRouter.delete('/delete/:id', isLoggedIn, async (req, res, next) => {
         });
 
         return res.status(200).send({ message: "Post deleted successfully." });
+    } catch (error) {
+        next(error)
+    }
+});
+
+postRouter.delete('/postItem/:id', isLoggedIn, async (req, res, next) => {
+    const { id } = req.params;
+
+    try {
+        const postItem = await prismaClient.postItem.findUnique({
+            where: {
+                id: parseInt(id)
+            },
+            include: {
+                post: true
+            }
+        });
+
+        if (!postItem) {
+            return res.status(404).send({ message: "Post Item not found." });
+        }
+
+        if (postItem.post.authorId !== req.user.id) {
+            return res.status(403).send({ message: "Unauthorized" });
+        }
+
+        await prismaClient.postItem.delete({
+            where: {
+                id: parseInt(id)
+            }
+        });
+
+        return res.status(200).send({ message: "Post Item deleted successfully." });
     } catch (error) {
         next(error)
     }

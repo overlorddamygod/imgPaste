@@ -42,7 +42,7 @@ const Login = () => {
 				{message && <p className="text-red-500">{message}</p>}
 				<div className="form-group">
 					<label htmlFor="email" className="block">Email</label>
-					<input type="email" id="email" name="email" className=" p-2 rounded text-black w-full" />
+					<input type="email" id="email" name="email" className="p-2 rounded text-black w-full" />
 				</div>
 				<div className="form-group">
 					<label htmlFor="password" className="block">Password</label>

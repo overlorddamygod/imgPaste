@@ -10,12 +10,14 @@ const Register = () => {
 	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		const form = e.currentTarget
+		const username = form.username.value
 		const email = form.email.value
 		const password = form.password.value
 		const confirmPassword = form.confirmPassword.value
 
 		try {
 			await axiosClient.post('/auth/register', {
+				username,
 				email,
 				password,
 				confirmPassword
@@ -34,8 +36,12 @@ const Register = () => {
 				<h1 className="text-3xl">Register</h1>
 				{message && <p className="text-red-500">{message}</p>}
 				<div className="form-group">
+					<label htmlFor="username" className="block">Username</label>
+					<input type="text" id="username" name="username" className="p-2 rounded text-black w-full" />
+				</div>
+				<div className="form-group">
 					<label htmlFor="email" className="block">Email</label>
-					<input type="email" id="email" name="email" className=" p-2 rounded text-black w-full" />
+					<input type="email" id="email" name="email" className="p-2 rounded text-black w-full" />
 				</div>
 				<div className="form-group">
 					<label htmlFor="password" className="block">Password</label>

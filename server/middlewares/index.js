@@ -20,6 +20,7 @@ export const isLoggedIn = async (req, res, next) => {
 }
 
 export const errorHandlerMiddleware = (error, _req, res, _next) => {
+    console.error(error)
     if (error instanceof ValidationError) {
         return res.status(403).json({ message: error.details[0].message });
     } else {
