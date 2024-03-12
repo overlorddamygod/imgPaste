@@ -1,7 +1,15 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { axiosClient } from '../lib/axiosClient';
+import { jwtDecode } from 'jwt-decode';
+
+interface User {
+  id: number;
+  username: string;
+  email: string;
+}
 
 interface AuthContextType {
+  user: User | null;
   accessToken: string | null;
   login: (token: string) => void;
   logout: () => void;
@@ -9,9 +17,10 @@ interface AuthContextType {
 }
 
 const defaultContextValue: AuthContextType = {
+  user: null,
   accessToken: null,
-  login: () => {},
-  logout: () => {},
+  login: () => { },
+  logout: () => { },
   isLoggedIn: () => false
 };
 
@@ -21,9 +30,16 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   const login = (token: string) => {
     localStorage.setItem('accessToken', token);
+    const decoded = jwtDecode(token) as User;
+    setUser({
+      id: +decoded.id,
+      username: decoded.username,
+      email: decoded.email
+    });
     setAccessToken(token);
     axiosClient.defaults.headers.Authorization = token;
   };
@@ -38,6 +54,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const contextValue: AuthContextType = {
+    user,
     accessToken,
     login,
     logout,
@@ -55,9 +72,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } else {
         login(token);
       }
-    }    
+    }
   }, [])
-  
+
 
   return (
     <AuthContext.Provider value={contextValue}>

@@ -10,10 +10,10 @@ imgPaste is a site where you can share images and text with others. It is a comb
 - Copy text
 
 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-  <img src="./screenshots/index.png" alt="Image 1" style="width: 100%;">
-  <img src="./screenshots/posts.png" alt="Image 4" style="width: 100%;">
-  <img src="./screenshots/register.png" alt="Image 2" style="width: 100%;">
-  <img src="./screenshots/login.png" alt="Image 3" style="width: 100%;">
+  <img src="./screenshots/index.png" alt="HomePage" style="width: 100%;">
+  <img src="./screenshots/posts.png" alt="Posts" style="width: 100%;">
+  <img src="./screenshots/register.png" alt="Register" style="width: 100%;">
+  <img src="./screenshots/login.png" alt="Login" style="width: 100%;">
 </div>
 
 ## Frontend Stack

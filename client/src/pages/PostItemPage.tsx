@@ -1,11 +1,12 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import { PostItem } from '../types';
 import { PostImage, PostText } from '../components/Post';
 import { axiosClient } from '../lib/axiosClient';
+import { useAuth } from '../state';
 
 const PostItemPage = () => {
+	const {user, isLoggedIn} = useAuth();
 	const {  postItemId } = useParams();
 	const navigate = useNavigate();
 	const [postItem, setPostItem] = useState<PostItem | null>(null);
@@ -32,9 +33,13 @@ const PostItemPage = () => {
 		return <div>Loading...</div>;
 	}
 
+	const isOwner = () => {
+		return isLoggedIn() ? user!.id === postItem.post.author.id : false;
+	}
+
 	return (
 		<div>
-			{postItem.type == "text" ? <PostText postItem={postItem} /> : <PostImage postItem={postItem} />}
+			{ postItem.type == "text" ? <PostText postItem={postItem} isOwner={isOwner} /> : <PostImage postItem={postItem} isOwner={isOwner} />}
 		</div>
 	)
 }

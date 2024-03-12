@@ -23,4 +23,5 @@ export interface PostItem {
     postId: number;
     createdAt: Date;
     updatedAt: Date;
+    post: Post;
 }

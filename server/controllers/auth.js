@@ -71,7 +71,7 @@ authRouter.post('/login', async (req, res, next) => {
             return res.status(400).send({ message: "Invalid password" });
         }
 
-        const token = jsonwebtoken.sign({ id: user.id }, JWT_SECRET, { expiresIn: "1d" });
+        const token = jsonwebtoken.sign({ id: user.id, username: user.username, email: user.email }, JWT_SECRET, { expiresIn: "1d" });
 
         return res.status(200).send({ data: {token} });
     } catch (error) {

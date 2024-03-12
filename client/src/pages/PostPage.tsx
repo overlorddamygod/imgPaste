@@ -9,12 +9,12 @@ import Share from '../assets/share.svg'
 import { Post } from '../types';
 import { copyToClipboard } from '../lib/clipboard';
 import { PostImage, PostText } from '../components/Post';
-
-
+import { useAuth } from '../state';
 
 const PostPage = () => {
 	const { id } = useParams();
 	const navigate = useNavigate();
+	const {user, isLoggedIn} = useAuth();
 	const [post, setPost] = useState<Post | null>(null);
 	const [postItemType, setPostItemType] = useState<string | null>(null);
 
@@ -108,19 +108,23 @@ const PostPage = () => {
 		navigate('/');
 	}
 
+	const isOwner = () => {
+		return isLoggedIn() ? post.author.id === user!.id : false;
+	}
+
 	return (
 		<div>
 			<div className="flex justify-between items-center">
-				<h1 className="text-4xl mb-4">{post.title}</h1>
+				<h1 className="text-4xl">{post.title}</h1>
 				<div className="flex gap-2">
 					<button onClick={() => copyToClipboard(window.location.href)}><img src={Share} alt="share" className="w-6" /></button>
-					<button onClick={deletePost} className="bg-white"><img src={Delete} alt="delete" className="w-6" /></button>
+					{isOwner() &&<button onClick={deletePost} className="bg-white"><img src={Delete} alt="delete" className="w-6" /></button>}
 				</div>
 			</div>
 			<div className="flex gap-4">
 				<div className="w-3/5">
-					{postItemType == null ?
-						<div className="w-full h-64 bg-primary text-white rounded group cursor-pointer">
+					{isOwner() && (postItemType == null ?
+						<div className="w-full h-64 bg-primary text-white rounded group cursor-pointer mt-4">
 							<div className="flex flex-col justify-center items-center h-full group-hover:hidden ">
 								<img src={Plus} alt="Plus" className="w-1/4 block fill-white" />
 								<div>Add Item</div>
@@ -144,19 +148,19 @@ const PostPage = () => {
 								<SecondaryButton onClick={onCancel}>Cancel</SecondaryButton>
 							</div>
 						</form>)
-					}
+					)} 
 
 					<div className="flex flex-col gap-4 my-4">
 						{post.postItems.map((item, index) => {
 							return (
 								<div key={index}>
-									{item.type == "text" ? <PostText postItem={item} refresh={fetchPost}/> : <PostImage postItem={item} refresh={fetchPost}/>}
+									{item.type == "text" ? <PostText postItem={item} refresh={fetchPost} isOwner={isOwner}/> : <PostImage postItem={item} refresh={fetchPost} isOwner={isOwner}/>}
 								</div>
 							)
 						})}
 					</div>
 				</div>
-				<div className="flex-1">
+				<div className="flex-1 mt-4">
 					<div className="bg-white p-2 rounded text-black">
 						<div>
 							Author: {post.author.username}

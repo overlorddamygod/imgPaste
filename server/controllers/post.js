@@ -67,7 +67,11 @@ postRouter.get('/postItem/:id', async (req, res, next) => {
                 id: parseInt(id)
             },
             include: {
-                post: true,
+                post: {
+                    include: {
+                        author: true
+                    }
+                },
             }
         });
 
