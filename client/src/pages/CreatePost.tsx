@@ -25,6 +25,7 @@ const CreatePost = () => {
 			navigate(`/p/${response.data.data.id}`)
 		} catch (error) {
 			console.log(error)
+			setMessage(error.response.data.message)
 		}
 	}
 

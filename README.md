@@ -9,6 +9,13 @@ imgPaste is a site where you can share images and text with others. It is a comb
 - Download images
 - Copy text
 
+<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+  <img src="./screenshots/index.png" alt="Image 1" style="width: 100%;">
+  <img src="./screenshots/posts.png" alt="Image 4" style="width: 100%;">
+  <img src="./screenshots/register.png" alt="Image 2" style="width: 100%;">
+  <img src="./screenshots/login.png" alt="Image 3" style="width: 100%;">
+</div>
+
 ## Frontend Stack
 
 - [Reactjs](https://reactjs.org) - A JavaScript library for building user interfaces
