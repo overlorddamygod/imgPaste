@@ -32,6 +32,7 @@ In both client and server directory, create a `.env` file according to the `.env
 # Run the server
 cd server
 npm install
+npx prisma generate
 npm start   # for production
 npm run dev # for development
 # Server runs on port 3000 by default
