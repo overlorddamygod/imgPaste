@@ -9,7 +9,6 @@ imgPaste is a site where you can share images and text with others. It is a comb
 - Download images
 - Copy text
 
-  
 ## Frontend Stack
 
 - [Reactjs](https://reactjs.org) - A JavaScript library for building user interfaces
@@ -23,19 +22,30 @@ imgPaste is a site where you can share images and text with others. It is a comb
 - [Nodejs](https://nodejs.org) - A JavaScript runtime built on Chrome's V8 JavaScript engine
 - [Express](https://expressjs.com) - Fast, unopinionated, minimalist web framework for Node.js
 - [Prisma](https://www.prisma.io) - Next-generation Node.js and TypeScript ORM
+- [Java Spring Boot](https://spring.io/projects/spring-boot) - Production-ready Java backend framework
+- [Spring Data JPA](https://spring.io/projects/spring-data-jpa) - Java ORM for database access
+- [PostgreSQL](https://www.postgresql.org/) - Advanced open source relational database
 
 ## Running the site
 
 In both client and server directory, create a `.env` file according to the `.env.example` file.
 
 ```bash
-# Run the server
-cd server
+# Run any one of server express or java
+
+# Run the Express server
+cd express-server
 npm install
 npx prisma generate
 npm start   # for production
 npm run dev # for development
 # Server runs on port 3000 by default
+
+# Run the Java Spring Boot server
+cd java-server
+./gradlew build
+./gradlew bootRun
+# Java server runs on port 3000 by default
 
 # Run the client
 cd client
