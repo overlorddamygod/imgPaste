@@ -1,9 +1,15 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { axiosClient } from '../lib/axiosClient';
-import { jwtDecode } from 'jwt-decode';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
+import { axiosClient } from "../lib/axiosClient";
+import { jwtDecode } from "jwt-decode";
 
 interface User {
-  id: number;
+  id: string;
   username: string;
   email: string;
 }
@@ -19,33 +25,35 @@ interface AuthContextType {
 const defaultContextValue: AuthContextType = {
   user: null,
   accessToken: null,
-  login: () => { },
-  logout: () => { },
-  isLoggedIn: () => false
+  login: () => {},
+  logout: () => {},
+  isLoggedIn: () => false,
 };
 
 const AuthContext = createContext<AuthContextType>(defaultContextValue);
 
 export const useAuth = () => useContext(AuthContext);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
 
   const login = (token: string) => {
-    localStorage.setItem('accessToken', token);
+    localStorage.setItem("accessToken", token);
     const decoded = jwtDecode(token) as User;
     setUser({
-      id: +decoded.id,
+      id: decoded.id,
       username: decoded.username,
-      email: decoded.email
+      email: decoded.email,
     });
     setAccessToken(token);
     axiosClient.defaults.headers.Authorization = token;
   };
 
   const logout = () => {
-    localStorage.removeItem('accessToken');
+    localStorage.removeItem("accessToken");
     setAccessToken(null);
     axiosClient.defaults.headers.Authorization = null;
   };
@@ -58,13 +66,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     accessToken,
     login,
     logout,
-    isLoggedIn
+    isLoggedIn,
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken')
+    const token = localStorage.getItem("accessToken");
     if (token) {
-      const accessTokenExpiration = JSON.parse(atob(token.split('.')[1])).exp * 1000;
+      const accessTokenExpiration =
+        JSON.parse(atob(token.split(".")[1])).exp * 1000;
       const now = new Date().getTime();
       const expiresIn = accessTokenExpiration - now;
       if (expiresIn <= 0) {
@@ -73,12 +82,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         login(token);
       }
     }
-  }, [])
-
+  }, []);
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
