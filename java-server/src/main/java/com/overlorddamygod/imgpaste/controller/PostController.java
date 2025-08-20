@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
@@ -67,10 +68,9 @@ public class PostController {
         try {
             var postOpt = postService.getPost(id);
             if (postOpt.isEmpty())
-                return ResponseEntity.badRequest().body(new ApiResponse<>("Post not found."));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ApiResponse<>("Post not found."));
             Post post = postOpt.get();
-            // Do not check authorization for GET, allow access regardless of Authorization
-            // header
             return ResponseEntity.ok(new ApiResponse<>(null, new PostDTOs.PostResponse(post)));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(new ApiResponse<>("Get post failed: " + e.getMessage()));
@@ -83,7 +83,8 @@ public class PostController {
         try {
             var itemOpt = postService.getPostItem(id);
             if (itemOpt.isEmpty())
-                return ResponseEntity.badRequest().body(new ApiResponse<>("Post not found."));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ApiResponse<>("Post not found."));
             return ResponseEntity.ok(new ApiResponse<>(null, new PostDTOs.PostItemResponse(itemOpt.get())));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
