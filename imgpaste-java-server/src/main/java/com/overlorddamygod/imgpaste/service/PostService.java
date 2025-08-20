@@ -42,14 +42,7 @@ public class PostService {
             if (!Files.exists(publicPath)) {
                 Files.createDirectories(publicPath);
             }
-            String extension = "";
-            String originalName = file.getOriginalFilename();
-            int dotIdx = originalName != null ? originalName.lastIndexOf('.') : -1;
-            if (dotIdx != -1) {
-                extension = originalName.substring(dotIdx);
-            }
-            String randomName = UUID.randomUUID().toString() + extension;
-            String imagePath = publicDir + "/" + randomName;
+            String imagePath = publicDir + "/" + file.getOriginalFilename();
             file.transferTo(Paths.get(imagePath));
             finalContent = imagePath.replaceFirst("\\.", "");
         }
