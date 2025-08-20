@@ -3,6 +3,7 @@ import prismaClient from "../prisma/index.js";
 import { isLoggedIn } from "../middlewares/index.js";
 import { addPostItemSchema } from "../helpers/validator/post.js";
 import fileUpload from "express-fileupload";
+import { randomUUID } from 'crypto';
 
 const postRouter = express.Router();
 postRouter.use(fileUpload());
@@ -24,8 +25,10 @@ postRouter.post('/create', isLoggedIn, async (req, res, next) => {
 
         return res.status(201).send({
             message: "Post created successfully.", data: {
-                id: result.id,
-                title: result.title,
+                post: {
+                    id: result.id,
+                    title: result.title,
+                }
             }
         });
     } catch (error) {
@@ -40,7 +43,7 @@ postRouter.get('/:id', async (req, res, next) => {
     try {
         const post = await prismaClient.post.findUnique({
             where: {
-                id: parseInt(id)
+                id: id 
             },
             include: {
                 postItems: true,
@@ -64,7 +67,7 @@ postRouter.get('/postItem/:id', async (req, res, next) => {
     try {
         const postItem = await prismaClient.postItem.findUnique({
             where: {
-                id: parseInt(id)
+                id: id 
             },
             include: {
                 post: {
@@ -85,21 +88,19 @@ postRouter.get('/postItem/:id', async (req, res, next) => {
     }
 });
 
-// add post item to the post
-postRouter.post('/addPostItem', isLoggedIn, async (req, res, next) => {
+// add post item (text)
+postRouter.post('/addPostItem/text', isLoggedIn, async (req, res, next) => {
     const { id, type, content } = req.body;
-
+    console.log(id)
     try {
-        addPostItemSchema.validateAsync({ id, type, content });
+        await addPostItemSchema.validateAsync({ id, type, content });
 
-        if (type !== "text" && type !== "image") {
-            return res.status(400).send({ message: "Invalid type." });
+        if (type !== "text") {
+            return res.status(400).send({ message: "Invalid type for text endpoint." });
         }
 
         const post = await prismaClient.post.findUnique({
-            where: {
-                id: parseInt(id)
-            }
+            where: { id }
         });
 
         if (!post) {
@@ -110,43 +111,71 @@ postRouter.post('/addPostItem', isLoggedIn, async (req, res, next) => {
             return res.status(403).send({ message: "Unauthorized" });
         }
 
-        if (type === "image") {
-            if (!req.files || !req.files.content) {
-                return res.status(400).send({ message: "Image is required." });
-            }
-
-            const image = req.files.content;
-            const imagePath = `./public/${image.name}`;
-
-            image.mv(imagePath, (err) => {
-                if (err) {
-                    return res.status(500).send({ message: "Failed to upload image." });
-                }
-            });
-
-            await prismaClient.postItem.create({
-                data: {
-                    type,
-                    content: imagePath.slice(1),
-                    postId: parseInt(id)
-                }
-            });
-        } else {
-            if (!content) {
-                return res.status(400).send({ message: "Content is required." });
-            }
-            await prismaClient.postItem.create({
-                data: {
-                    type,
-                    content: content,
-                    postId: parseInt(id)
-                }
-            });
+        if (!content) {
+            return res.status(400).send({ message: "Content is required." });
         }
+
+        await prismaClient.postItem.create({
+            data: {
+                type,
+                content,
+                postId: id
+            }
+        });
 
         return res.status(201).send({ message: "Post item added successfully." });
     } catch (error) {
-        next(error)
+        next(error);
+    }
+});
+
+// add post item (image)
+postRouter.post('/addPostItem/image', isLoggedIn, async (req, res, next) => {
+    const { id, type } = req.body;
+
+    try {
+        if (type !== "image") {
+            return res.status(400).send({ message: "Invalid type for image endpoint." });
+        }
+
+        const post = await prismaClient.post.findUnique({
+            where: { id }
+        });
+
+        if (!post) {
+            return res.status(404).send({ message: "Post not found." });
+        }
+
+        if (post.authorId !== req.user.id) {
+            return res.status(403).send({ message: "Unauthorized" });
+        }
+
+        if (!req.files || !req.files.content) {
+            return res.status(400).send({ message: "Image is required." });
+        }
+
+        const image = req.files.content;
+        const imageName = `${randomUUID()}-${image.name}`;
+        const imagePath = `./public/${imageName}`;
+
+        image.mv(imagePath, (err) => {
+            if (err) {
+                return res.status(500).send({ message: "Failed to upload image." });
+            }
+        });
+
+        await prismaClient.postItem.create({
+            data: {
+                id: randomUUID(), // Use UUID for postItem id
+                type,
+                content: imagePath.slice(1),
+                postId: id
+            }
+        });
+
+        return res.status(201).send({ message: "Post item added successfully." });
+    } catch (error) {
+        next(error);
     }
 });
 
@@ -156,7 +185,7 @@ postRouter.delete('/:id', isLoggedIn, async (req, res, next) => {
     try {
         const post = await prismaClient.post.findUnique({
             where: {
-                id: parseInt(id)
+                id
             }
         });
 
@@ -170,7 +199,7 @@ postRouter.delete('/:id', isLoggedIn, async (req, res, next) => {
 
         await prismaClient.post.delete({
             where: {
-                id: parseInt(id)
+                id
             }
         });
 
@@ -186,7 +215,7 @@ postRouter.delete('/postItem/:id', isLoggedIn, async (req, res, next) => {
     try {
         const postItem = await prismaClient.postItem.findUnique({
             where: {
-                id: parseInt(id)
+                id
             },
             include: {
                 post: true
@@ -203,7 +232,7 @@ postRouter.delete('/postItem/:id', isLoggedIn, async (req, res, next) => {
 
         await prismaClient.postItem.delete({
             where: {
-                id: parseInt(id)
+                id
             }
         });
 

@@ -11,33 +11,33 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  username     String @unique
-  email    String  @unique
+  id       String @id @default(uuid())
+  username String @unique
+  email    String @unique
   password String
   posts    Post[]
 }
 
 model Post {
-  id        Int     @id @default(autoincrement())
+  id        String  @id @default(uuid())
   title     String
   published Boolean @default(true)
 
   postItems PostItem[]
 
-  author   User? @relation(fields: [authorId], references: [id])
-  authorId Int?
+  author   User?   @relation(fields: [authorId], references: [id])
+  authorId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model PostItem {
-  id      Int    @id @default(autoincrement())
+  id      String @id @default(uuid())
   type    String
   content String
   post    Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId  Int
+  postId  String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
